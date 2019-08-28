@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration debug="false">
+
+    <property name="LOG_PATH" value="${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} %-5level [%logger{36}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="SERVER_ERROR" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <Append>true</Append>
+        <File>${LOG_PATH}/challenge-error.log</File>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>ERROR</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder>
+            <pattern>%date{dd/MMM/yyyy HH:mm:ss} %c %5p - %m %n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/challenge-error.log.%d{yyyy-MM-dd}
+            </fileNamePattern>
+            <maxHistory>20</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <appender name="SERVER_INFO" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <Append>true</Append>
+        <File>${LOG_PATH}/challenge.log</File>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>INFO</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>NEUTRAL</onMismatch>
+        </filter>
+        <filter class="ch.qos.logback.classic.filter.LevelFilter">
+            <level>WARN</level>
+            <onMatch>ACCEPT</onMatch>
+            <onMismatch>DENY</onMismatch>
+        </filter>
+        <encoder class="net.logstash.logback.encoder.LogstashEncoder">
+            <fieldNames>
+                <logger>[ignore]</logger>
+                <thread>[ignore]</thread>
+                <levelValue>[ignore]</levelValue>
+                <version>[ignore]</version>
+                <timestamp>timestamp</timestamp>
+            </fieldNames>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_PATH}/challenge.log%d{yyyy-MM-dd}</fileNamePattern>
+            <maxHistory>20</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <logger name="com.volanty" level="INFO" additivity="false">
+        <appender-ref ref="SERVER_INFO"/>
+        <appender-ref ref="SERVER_ERROR" />
+        <appender-ref ref="CONSOLE"/>
+    </logger>
+
+    <root level="${logLevel:-info}">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+
+</configuration>

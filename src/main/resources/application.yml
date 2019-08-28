@@ -1,0 +1,25 @@
+server:
+  port: 8000
+  undertow.accesslog.enabled: true
+  servlet:
+    contextPath: /challenge
+
+spring:
+  jpa:
+    properties:
+      hibernate:
+        temp.use_jdbc_metadata_defaults: false
+        hbm2ddl.auto: validate
+        show_sql: false
+  datasource:
+    url: jdbc:postgresql://172.17.0.1:5432/challenge_db
+    username: hcfonseca
+    password: hugo123
+    driver-class-name: org.postgresql.Driver
+    validationQuery: SELECT 1
+    testOnBorrow: true
+    jpa:
+      properties.hibernate.dialect: org.hibernate.dialect.PostgreSQLDialect
+    hikari:
+      maximum-pool-size: 10
+      connection-test-query: SELECT 1
