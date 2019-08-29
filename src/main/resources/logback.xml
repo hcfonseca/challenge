@@ -35,11 +35,6 @@
             <onMatch>ACCEPT</onMatch>
             <onMismatch>NEUTRAL</onMismatch>
         </filter>
-        <filter class="ch.qos.logback.classic.filter.LevelFilter">
-            <level>WARN</level>
-            <onMatch>ACCEPT</onMatch>
-            <onMismatch>DENY</onMismatch>
-        </filter>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <fieldNames>
                 <logger>[ignore]</logger>

@@ -19,11 +19,6 @@ create table cav (
   name text
 );
 
-create table cap (
-  id serial primary key,
-  name text
-);
-
 insert into cav (name) values ('Botafogo');
 insert into cav (name) values ('Barra da Tijuca');
 insert into cav (name) values ('Norte Shopping');
@@ -52,6 +47,9 @@ insert into visit (time, car_id, cav_id) values (
 insert into visit (time, car_id, cav_id) values (
   TIMESTAMP '2019-07-18 14:00:00', 2, 2);
 
+insert into visit (time, car_id, cav_id) values (
+  TIMESTAMP '2019-08-30 14:00:00', 2, 1);
+
 create table inspection (
   id serial primary key,
   time timestamp,
@@ -73,3 +71,6 @@ insert into inspection (time, car_id, cav_id) values (
 
 insert into inspection (time, car_id, cav_id) values (
   TIMESTAMP '2019-07-17 12:00:00', 5, 3);
+
+insert into inspection (time, car_id, cav_id) values (
+  TIMESTAMP '2019-08-30 11:00:00', 2, 1);
