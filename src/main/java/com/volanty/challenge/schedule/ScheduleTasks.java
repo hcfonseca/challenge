@@ -1,7 +1,9 @@
 package com.volanty.challenge.schedule;
 
+import com.volanty.challenge.entity.AvailableDays;
 import com.volanty.challenge.entity.Cav;
 import com.volanty.challenge.entity.Visit;
+import com.volanty.challenge.repository.AvailableDaysRepository;
 import com.volanty.challenge.service.CavService;
 import com.volanty.challenge.service.InspectionService;
 import com.volanty.challenge.service.VisitService;
@@ -31,11 +33,15 @@ public class ScheduleTasks {
 
     private CavService cavService;
 
+    private AvailableDaysRepository availableDaysRepository;
 
-    public ScheduleTasks(VisitService visitService, InspectionService inspectionService, CavService cavService) {
+
+    public ScheduleTasks(VisitService visitService, InspectionService inspectionService, CavService cavService,
+                         AvailableDaysRepository availableDaysRepository) {
         this.visitService = visitService;
         this.inspectionService = inspectionService;
         this.cavService = cavService;
+        this.availableDaysRepository = availableDaysRepository;
     }
 
     //   @Scheduled(cron = "0 0 * * * *")
@@ -47,7 +53,15 @@ public class ScheduleTasks {
             List<String> keys = getAllPossibleTimes();
             List<String> busyHours = getVisitBusyHours();
 
+            for (String key : keys) {
 
+                if (!busyHours.contains(key)) {
+                    AvailableDays availableDays = new AvailableDays();
+                    availableDays.setKey(key);
+                    availableDaysRepository.save(availableDays);
+                }
+
+            }
 
             log.info("Visit hours added successfully");
         } catch (Exception e) {
@@ -70,36 +84,42 @@ public class ScheduleTasks {
         List<Cav> cavs = new ArrayList<>();
         List<String> keys = new ArrayList<>();
 
+        Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("GMT-03:00"));
+        Integer currentDay = currentDate.get(Calendar.DATE);
+        Integer currentHour = currentDate.get(Calendar.HOUR_OF_DAY);
+
         try {
             cavs = cavService.getAllCavs();
         } catch (Exception e) {
             log.error("error while retrieving all cavs.", e);
         }
 
-        Calendar date = Calendar.getInstance(TimeZone.getTimeZone("GMT-03:00"));
-        date.setTime(new Date());
+        for (Cav cav : cavs) {
 
-        cavs.stream().forEach( item ->
+            Calendar date = Calendar.getInstance(TimeZone.getTimeZone("GMT-03:00"));
+            date.setTime(new Date());
 
+            for (int day = 0; day < possibleDays; day++) {
 
+                for (int hour = openCav; hour<=closeCav; hour++) {
 
-        );
-        for (int day = 0; day <= possibleDays; day++) {
+                    if (!(date.get(Calendar.DATE) == currentDay && currentHour>=hour)) {
+                        date.set(Calendar.HOUR_OF_DAY, hour);
+                        keys.add(generateKey(date, cav.getId()));
+                    }
+                }
 
-            date.add(Calendar.DATE, day);
-
-            for (int hour = openCav; hour<=closeCav; hour++) {
-                date.set(Calendar.HOUR_OF_DAY, hour);
-                keys.add(generateKey(date));
+                date.add(Calendar.DATE, 1);
             }
+
         }
 
         return keys;
     }
 
     private String generateKey(Calendar date, Integer cavId) {
-        return Integer.toString(cavId) + "-" + Integer.toString(date.get(Calendar.YEAR)) +
-                Integer.toString(date.get(Calendar.MONTH)+1) + Integer.toString(date.get(Calendar.DATE)) + "-" +
+        return Integer.toString(cavId) + "_" + Integer.toString(date.get(Calendar.YEAR)) +
+                Integer.toString(date.get(Calendar.MONTH)+1) + Integer.toString(date.get(Calendar.DATE)) + "_" +
                 Integer.toString(date.get(Calendar.HOUR_OF_DAY));
     }
 
