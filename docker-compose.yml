@@ -1,11 +1,19 @@
 version: '2'
 services:
-  redis:
+  web:
+    build: .
+    image: challenge
+    ports:
+    - 8000:8000
+    depends_on:
+    - db
+    - cache
+  cache:
     image: "redis:alpine"
     container_name: cache
     ports:
       - "6379:6379"
-  database:
+  db:
     image: "postgres:9.6"
     ports:
       - "5432:5432"

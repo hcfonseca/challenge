@@ -41,7 +41,6 @@ public class ScheduleTasks {
     }
 
     @Scheduled(cron = "0 0 * * * *")
-    /*@Scheduled(fixedRate = 1000 * 30)*/
     public void addingAvailableHoursToVisit() {
 
         try {
@@ -64,7 +63,6 @@ public class ScheduleTasks {
     }
 
     @Scheduled(cron = "0 0 * * * *")
-    /*@Scheduled(fixedRate = 1000 * 30)*/
     public void addingAvailableHoursToInspection() {
 
         try {

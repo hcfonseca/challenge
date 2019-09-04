@@ -10,15 +10,11 @@ import com.volanty.challenge.repository.InspectionRepository;
 import com.volanty.challenge.repository.cache.InspectionCacheRepository;
 import com.volanty.challenge.utils.ParseUtils;
 import javassist.NotFoundException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.text.ParseException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-
-import static net.logstash.logback.marker.Markers.append;
 
 @Service
 public class InspectionService {
@@ -44,9 +40,9 @@ public class InspectionService {
         inspectionCacheRepository.insertItem(key, "", timeout, timeUnit);
     }
 
-    public List<Date> getAvailableHoursByCav(Integer cavId) throws ParseException {
+    public List<String> getAvailableHoursByCav(Integer cavId) throws ParseException {
         Set<String> keys = inspectionCacheRepository.getKeys(cavId + "*");
-        return ParseUtils.parseKeysToDate(keys);
+        return ParseUtils.parseKeysToDateString(keys);
     }
 
     public Boolean removeAvailableHour(Integer cavId, Date date) {
@@ -85,7 +81,7 @@ public class InspectionService {
             throw new RuntimeException("error while scheduling the inspection");
         }
 
-        return inspectionRepository.save(inspection);
+        return inspection;
     }
 
     private Long getExpiration (Integer cavId, Date date) {

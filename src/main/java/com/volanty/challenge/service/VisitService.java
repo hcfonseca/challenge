@@ -1,10 +1,8 @@
 package com.volanty.challenge.service;
 
-import com.volanty.challenge.dto.InspectionDTO;
 import com.volanty.challenge.dto.VisitDTO;
 import com.volanty.challenge.entity.Car;
 import com.volanty.challenge.entity.Cav;
-import com.volanty.challenge.entity.Inspection;
 import com.volanty.challenge.entity.Visit;
 import com.volanty.challenge.repository.CarRepository;
 import com.volanty.challenge.repository.CavRepository;
@@ -43,9 +41,9 @@ public class VisitService {
         visitCacheRepository.insertItem(time, "", timeout, timeUnit);
     }
 
-    public List<Date> getAvailableHoursByCav(Integer cavId) throws ParseException {
+    public List<String> getAvailableHoursByCav(Integer cavId) throws ParseException {
         Set<String> keys = visitCacheRepository.getKeys(cavId + "*");
-        return ParseUtils.parseKeysToDate(keys);
+        return ParseUtils.parseKeysToDateString(keys);
     }
 
     public Boolean removeAvailableHour(Integer cavId, Date date) {
@@ -84,7 +82,7 @@ public class VisitService {
             throw new RuntimeException("error while scheduling the visit");
         }
 
-        return visitRepository.save(visit);
+        return visit;
     }
 
     private Long getExpiration (Integer cavId, Date date) {

@@ -2,7 +2,6 @@ package com.volanty.challenge.controller;
 
 import com.volanty.challenge.dto.InspectionDTO;
 import com.volanty.challenge.dto.VisitDTO;
-import com.volanty.challenge.entity.Car;
 import com.volanty.challenge.entity.Cav;
 import com.volanty.challenge.entity.Inspection;
 import com.volanty.challenge.entity.Visit;
@@ -20,10 +19,7 @@ import javax.validation.Valid;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import static net.logstash.logback.marker.Markers.append;
 
@@ -69,20 +65,19 @@ public class CavController {
     @GetMapping("/v1/availableHours/inspection/cav/{cavId}")
     public ResponseEntity getAvailableHoursToInspection(@PathVariable Integer cavId) {
 
-        final List<Date> availableHours;
+        final List<String> availableHours;
 
         try {
             availableHours = inspectionService.getAvailableHoursByCav(cavId);
         } catch (Exception e) {
             log.error(append("cavId", cavId), "error while retrieving the available hours to inspection", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("error while retrieving the available hours to inspection");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
 
         log.info(append("cavId", cavId), "successfully retrieve the available hours to inspection");
 
         if (availableHours == null || availableHours.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("there is no time available to inspection");
+            return ResponseEntity.noContent().build();
         }
 
         Collections.sort(availableHours);
@@ -92,7 +87,7 @@ public class CavController {
     @GetMapping("/v1/availableHours/visit/cav/{cavId}")
     public ResponseEntity getAvailableHoursToVisit(@PathVariable Integer cavId) {
 
-        final List<Date> availableHours;
+        final List<String> availableHours;
 
         try {
             availableHours = visitService.getAvailableHoursByCav(cavId);
@@ -143,7 +138,7 @@ public class CavController {
         return ResponseEntity.created(new URI("")).body(inspection);
     }
 
-    @PostMapping("/visitv1/cav/{cavId}/visit")
+    @PostMapping("/v1/cav/{cavId}/visit")
     public ResponseEntity scheduleVisit(@PathVariable Integer cavId,
         @Valid @RequestBody VisitDTO visitDTO) throws URISyntaxException {
 

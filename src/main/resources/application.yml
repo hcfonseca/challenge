@@ -12,7 +12,7 @@ spring:
         hbm2ddl.auto: validate
         show_sql: false
   datasource:
-    url: jdbc:postgresql://172.17.0.1:5432/challenge_db
+    url: jdbc:postgresql://db:5432/challenge_db
     username: hcfonseca
     password: hugo123
     driver-class-name: org.postgresql.Driver
@@ -25,11 +25,11 @@ spring:
       connection-test-query: SELECT 1
   redis:
     visit:
-      host: 172.17.0.1
+      host: cache
       port: 6379
       database: 0
     inspection:
-      host: 172.17.0.1
+      host: cache
       port: 6379
       database: 1
 

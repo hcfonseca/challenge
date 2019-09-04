@@ -1,24 +1,28 @@
 package com.volanty.challenge.utils;
 
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.List;
+import java.util.Set;
 
 public class ParseUtils {
 
-    public static List<Date> parseKeysToDate(Set<String> keys) throws ParseException {
+    public static List<String> parseKeysToDateString(Set<String> keys) throws ParseException, StringIndexOutOfBoundsException {
 
-        List<Date> availableHours = new ArrayList<>();
+        List<String> availableHours = new ArrayList<>();
 
-        for (String key : keys) {
+        if (keys != null) {
 
-            String[] parts = key.split("_");
-            String date = parts[1].substring(0,4) + "-" + parts[1].substring(4,6) + "-" + parts[1].substring(6,8)
-                    + " " + parts[2] + ":00:00";
+            for (String key : keys) {
 
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC-3"));
-            availableHours.add(sdf.parse(date));
+                String[] parts = key.split("_");
+                String date = parts[1].substring(0,4) + "-" + parts[1].substring(4,6) + "-" + parts[1].substring(6,8)
+                        + " " + getFormattedDate(parts[2]) + ":00:00";
+
+                availableHours.add(date);
+
+            }
 
         }
 
@@ -33,6 +37,11 @@ public class ParseUtils {
 
     private static String getFormattedDate(Integer date) {
         String dateString = "0" + Integer.toString(date);
+        return dateString.substring(dateString.length() - 2);
+    }
+
+    private static String getFormattedDate(String date) {
+        String dateString = "0" + date;
         return dateString.substring(dateString.length() - 2);
     }
 }
