@@ -12,6 +12,8 @@ Para instalar a ferramenta, execute apenas o comando abaixo:
 make install-dependencies
 ```
 
+### Instruções
+
 Para rodar o projeto, execute o comando abaixo: 
 
 ```
