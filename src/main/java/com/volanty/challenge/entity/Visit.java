@@ -3,10 +3,7 @@ package com.volanty.challenge.entity;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
+import javax.persistence.*;
 import java.util.Date;
 
 @Data
@@ -15,6 +12,7 @@ import java.util.Date;
 public class Visit {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private Date time;
     @ManyToOne
@@ -23,4 +21,10 @@ public class Visit {
     @ManyToOne
     @JoinColumn(name = "cav_id")
     private Cav cav;
+
+    public Visit(Date time, Car car, Cav cav) {
+        this.time = time;
+        this.car = car;
+        this.cav = cav;
+    }
 }

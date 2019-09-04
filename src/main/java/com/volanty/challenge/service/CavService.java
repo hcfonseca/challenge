@@ -20,5 +20,8 @@ public class CavService {
         return cavRepository.findAll();
     }
 
+    public Optional<Cav> getCavById(Integer id) throws Exception {
+        return cavRepository.findById(id);
+    }
 }
 

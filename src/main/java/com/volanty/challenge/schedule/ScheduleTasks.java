@@ -1,18 +1,19 @@
 package com.volanty.challenge.schedule;
 
-import com.volanty.challenge.entity.AvailableDays;
 import com.volanty.challenge.entity.Cav;
+import com.volanty.challenge.entity.Inspection;
 import com.volanty.challenge.entity.Visit;
-import com.volanty.challenge.repository.AvailableDaysRepository;
 import com.volanty.challenge.service.CavService;
 import com.volanty.challenge.service.InspectionService;
 import com.volanty.challenge.service.VisitService;
+import com.volanty.challenge.utils.ParseUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Component
@@ -33,32 +34,25 @@ public class ScheduleTasks {
 
     private CavService cavService;
 
-    private AvailableDaysRepository availableDaysRepository;
-
-
-    public ScheduleTasks(VisitService visitService, InspectionService inspectionService, CavService cavService,
-                         AvailableDaysRepository availableDaysRepository) {
+    public ScheduleTasks(VisitService visitService, InspectionService inspectionService, CavService cavService) {
         this.visitService = visitService;
         this.inspectionService = inspectionService;
         this.cavService = cavService;
-        this.availableDaysRepository = availableDaysRepository;
     }
 
-    //   @Scheduled(cron = "0 0 * * * *")
-    @Scheduled(fixedRate = 1000 * 30)
+    @Scheduled(cron = "0 0 * * * *")
+    /*@Scheduled(fixedRate = 1000 * 30)*/
     public void addingAvailableHoursToVisit() {
 
         try {
 
-            List<String> keys = getAllPossibleTimes();
+            Map<String, Long> keys = getAllPossibleTimes();
             List<String> busyHours = getVisitBusyHours();
 
-            for (String key : keys) {
+            for (String key : keys.keySet()) {
 
                 if (!busyHours.contains(key)) {
-                    AvailableDays availableDays = new AvailableDays();
-                    availableDays.setKey(key);
-                    availableDaysRepository.save(availableDays);
+                    visitService.addAvailableTime(key, keys.get(key), TimeUnit.HOURS);
                 }
 
             }
@@ -70,19 +64,32 @@ public class ScheduleTasks {
     }
 
     @Scheduled(cron = "0 0 * * * *")
+    /*@Scheduled(fixedRate = 1000 * 30)*/
     public void addingAvailableHoursToInspection() {
 
         try {
+
+            Map<String, Long> keys = getAllPossibleTimes();
+            List<String> busyHours = getInspectionBusyHours();
+
+            for (String key : keys.keySet()) {
+
+                if (!busyHours.contains(key)) {
+                    inspectionService.addAvailableTime(key, keys.get(key), TimeUnit.HOURS);
+                }
+
+            }
+
             log.info("Inspections hours added successfully");
         } catch (Exception e) {
             log.error("Error adding available hours", e);
         }
     }
 
-    private List<String> getAllPossibleTimes() {
+    private Map<String, Long> getAllPossibleTimes() {
 
         List<Cav> cavs = new ArrayList<>();
-        List<String> keys = new ArrayList<>();
+        Map<String, Long> keys = new HashMap<>();
 
         Calendar currentDate = Calendar.getInstance(TimeZone.getTimeZone("GMT-03:00"));
         Integer currentDay = currentDate.get(Calendar.DATE);
@@ -99,28 +106,25 @@ public class ScheduleTasks {
             Calendar date = Calendar.getInstance(TimeZone.getTimeZone("GMT-03:00"));
             date.setTime(new Date());
 
+            Long ttl = 1L;
             for (int day = 0; day < possibleDays; day++) {
 
                 for (int hour = openCav; hour<=closeCav; hour++) {
 
                     if (!(date.get(Calendar.DATE) == currentDay && currentHour>=hour)) {
                         date.set(Calendar.HOUR_OF_DAY, hour);
-                        keys.add(generateKey(date, cav.getId()));
+                        keys.put(ParseUtils.generateKey(date, cav.getId()), ttl);
+                        ttl++;
                     }
                 }
 
+                ttl = ttl + ((24 - closeCav) + openCav);
                 date.add(Calendar.DATE, 1);
             }
 
         }
 
         return keys;
-    }
-
-    private String generateKey(Calendar date, Integer cavId) {
-        return Integer.toString(cavId) + "_" + Integer.toString(date.get(Calendar.YEAR)) +
-                Integer.toString(date.get(Calendar.MONTH)+1) + Integer.toString(date.get(Calendar.DATE)) + "_" +
-                Integer.toString(date.get(Calendar.HOUR_OF_DAY));
     }
 
     private List<String> getVisitBusyHours() {
@@ -136,7 +140,7 @@ public class ScheduleTasks {
                 Calendar dateVisit = Calendar.getInstance(TimeZone.getTimeZone("GMT-03:00"));
                 dateVisit.setTime(visit.getTime());
 
-                busyHours.add(generateKey(dateVisit, visit.getCav().getId()));
+                busyHours.add(ParseUtils.generateKey(dateVisit, visit.getCav().getId()));
 
             }
 
@@ -146,6 +150,31 @@ public class ScheduleTasks {
 
         return busyHours;
     }
+
+    private List<String> getInspectionBusyHours() {
+
+        List<String> busyHours = new ArrayList<>();
+
+        try {
+
+            List<Inspection> inspections = inspectionService.getFutureVisits(new Date());
+
+            for (Inspection inspection : inspections) {
+
+                Calendar dateInspection = Calendar.getInstance(TimeZone.getTimeZone("GMT-03:00"));
+                dateInspection.setTime(inspection.getTime());
+
+                busyHours.add(ParseUtils.generateKey(dateInspection, inspection.getCav().getId()));
+
+            }
+
+        } catch (Exception e) {
+            log.error("error while getting all the inspections", e);
+        }
+
+        return busyHours;
+    }
+
 
 }
 

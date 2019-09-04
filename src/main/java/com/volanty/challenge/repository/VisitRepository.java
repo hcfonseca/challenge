@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface VisitRepository extends JpaRepository<Visit, Integer> {
 
-    public List<Visit> findByTimeGreaterThanEqual(Date startDate);
+    List<Visit> findByTimeGreaterThanEqual(Date startDate);
 
 }

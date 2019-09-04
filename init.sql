@@ -48,7 +48,7 @@ insert into visit (time, car_id, cav_id) values (
   TIMESTAMP '2019-07-18 14:00:00', 2, 2);
 
 insert into visit (time, car_id, cav_id) values (
-  TIMESTAMP '2019-09-3 14:00:00', 2, 1);
+  TIMESTAMP '2019-09-4 14:00:00', 2, 1);
 
 create table inspection (
   id serial primary key,
@@ -73,4 +73,4 @@ insert into inspection (time, car_id, cav_id) values (
   TIMESTAMP '2019-07-17 12:00:00', 5, 3);
 
 insert into inspection (time, car_id, cav_id) values (
-  TIMESTAMP '2019-09-3 11:00:00', 2, 1);
+  TIMESTAMP '2019-09-4 11:00:00', 2, 1);
