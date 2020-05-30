@@ -6,7 +6,7 @@
 Docker e docker-compose
 ```
 
-Para instalar a ferramenta, execute apenas o comando abaixo:  
+Para instalar os pré requisitos, execute o comando abaixo:  
 
 ```
 make install-dependencies
